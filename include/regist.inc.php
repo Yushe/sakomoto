@@ -107,7 +107,8 @@ function regist($ip,$name,$capcode,$email,$sub,$com,$url,$pwd,$resto,$spoiler,$s
                                 $fileno=($files?'_'.($files+1):'');
                                 //Note: move_uploaded_file breaks oekaki
                                 copy($upfiles[$files],IMG_DIR.$tim.$fileno.$ext);
-                                thumb(IMG_DIR,$tim,$ext,$fileno);
+                                if(!thumb(IMG_DIR,$tim,$ext,$fileno))
+                                        error(lang("Error: Unable to read uploaded file during thumbnailing. A common cause for this is an incorrect extension when the file is actually of a different type."));
                                 
                                 // Picture reduction
                                 if ($size && ($w > MAX_W || $h > MAX_H)) {
@@ -223,7 +224,7 @@ function regist($ip,$name,$capcode,$email,$sub,$com,$url,$pwd,$resto,$spoiler,$s
         }
         //Emotes
         foreach(EMOTES as $emote => $emotefile){
-                $com=str_replace(":".$emote.":","<img alt=\"".$emote."\" src=\"".EMOTES_DIR.$emotefile."\" border=\"0\"/>",$com);
+                $com=str_replace(":".$emote.":","<img onmouseover=\"Tip(':".$emote.":');\" onmouseout=\"UnTip();\" alt=\"".$emote."\" src=\"".EMOTES_DIR.$emotefile."\" border=\"0\"/>",$com);
         }
         //Fortune
         if(FORTUNE&&($fortune||stristr($email,"fortune"))){
@@ -388,6 +389,21 @@ function regist($ip,$name,$capcode,$email,$sub,$com,$url,$pwd,$resto,$spoiler,$s
                 die(json_encode(["status"=>"success"]));
         }
         
+        if(USE_WEBHOOK){
+                /*if(!*/echo file_get_contents(WEBHOOK_URL,false,stream_context_create([
+                        "http"=>[
+                                "method"=>"POST",
+                                "header"=>"content-type:application/x-www-form-urlencoded",
+                                "content"=>http_build_query([
+                                        "content"=>lang(($resto?"New post":"New thread"))." <".HERE.PHP_SELF."?res=".$resto."#p".mysqli_fetch_assoc(mysqli_call("SELECT no FROM ".POSTTABLE." WHERE `tim`=".$tim))["no"].">",
+                                        "username"=>$name,
+                                        "avatar_url"=>HERE.($file["md5"]?THUMB_DIR.$tim."c.jpg":"")
+                                ])
+                        ]
+                ]))/*)
+                        echo lang("Failed to send webhook.")."<br/>"*/;
+        }
+
         echo $mes;
         if(!$mes)echo lang("Post submitted")."<br/>";
 	rebuild(true);
