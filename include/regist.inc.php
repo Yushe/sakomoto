@@ -390,18 +390,18 @@ function regist($ip,$name,$capcode,$email,$sub,$com,$url,$pwd,$resto,$spoiler,$s
         }
         
         if(USE_WEBHOOK){
-                /*if(!*/echo file_get_contents(WEBHOOK_URL,false,stream_context_create([
+                $no=mysqli_fetch_assoc(mysqli_call("SELECT no FROM ".POSTTABLE." WHERE `tim`=".$tim))["no"];
+                echo file_get_contents(WEBHOOK_URL,false,stream_context_create([
                         "http"=>[
                                 "method"=>"POST",
                                 "header"=>"content-type:application/x-www-form-urlencoded",
                                 "content"=>http_build_query([
-                                        "content"=>lang(($resto?"New post":"New thread"))." <".HERE.PHP_SELF."?res=".$resto."#p".mysqli_fetch_assoc(mysqli_call("SELECT no FROM ".POSTTABLE." WHERE `tim`=".$tim))["no"].">",
+                                        "content"=>lang(($resto?"New post":"New thread"))." <".HERE.PHP_SELF."?res=".($resto?$resto:$no)."#p".$no.">",
                                         "username"=>$name,
                                         "avatar_url"=>HERE.($file["md5"]?THUMB_DIR.$tim."c.jpg":"")
                                 ])
                         ]
-                ]))/*)
-                        echo lang("Failed to send webhook.")."<br/>"*/;
+                ]))
         }
 
         echo $mes;
