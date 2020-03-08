@@ -401,7 +401,7 @@ function regist($ip,$name,$capcode,$email,$sub,$com,$url,$pwd,$resto,$spoiler,$s
                                         "avatar_url"=>HERE.($file["md5"]?THUMB_DIR.$tim."c.jpg":"")
                                 ])
                         ]
-                ]))
+                ]));
         }
 
         echo $mes;
