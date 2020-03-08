@@ -1,5 +1,9 @@
 //This JavaScript is native to Sakomoto
 
+if(location.protocol!=='https:') {
+        location.replace(`https:${location.href.substring(location.protocol.length)}`);
+}
+
 alert = function(text="Alert!"){
         alert_already=document.getElementById("alert_container");
         if(alert_already)alert_already.remove();
