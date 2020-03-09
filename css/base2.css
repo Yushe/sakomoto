@@ -17,8 +17,8 @@ body{
 }
 small{font-size:9pt;}
 a,a:visited{text-decoration:none;}
-#pager,.reply,input[type="text"],input[type="password"],textarea{padding:2px;}
-input[type="text"],input[type="password"],textarea{margin-right:2px;}
+#pager,.reply,input[type="search"],input[type="text"],input[type="password"],textarea{padding:2px;}
+input[type="text"],input[type="search"],input[type="password"],textarea{margin-right:2px;}
 hr{
         border-style:none;
         border-top-style:solid;
@@ -40,13 +40,12 @@ hr{
 #catalog img[alt="***"]:hover{border-radius:0;}
 .file a,.quotelink{text-decoration:underline;}
 .boardNav a{padding:1px;}
-.postblock,.postlists th,.reply,input[type="text"],input[type="password"],textarea,hr{border-width:1px;}
+.postblock,.postlists th,.reply,input[type="search"],input[type="text"],input[type="password"],textarea,hr{border-width:1px;}
 #catalog font[size="1"]{font-size:12pt;}
 .filesize,.nameBlock,.subject{unicode-bidi:embed;}
 .rules ul{
         width: 468px;
-        margin:0;
-        padding-left:0;
+/*        margin:0;*/
 }
 .rules li {
         margin-left: 1em;

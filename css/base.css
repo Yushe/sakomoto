@@ -30,3 +30,4 @@ body{padding-bottom:1em;}
         image-rendering:optimize-contrast;
         -ms-interpolation-mode:nearest-neighbor;
 }
+.rules ul{padding-left:0;}
