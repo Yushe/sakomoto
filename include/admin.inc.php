@@ -306,7 +306,7 @@ function admindel() {
 				<td><label><center><input type="checkbox" name="c'.$row["no"].'"'.($row["closed"]?" checked":'').' value="closed"></center></label></td>';
                 if($_SESSION["canedit"])echo "<td><a href=\"?mode=admin&admin=edit&q=".$row["no"]."\">Edit</a></td>";
 		echo '
-				<td>'.$row["no"].'</td>
+				<td><a href="?res='.($row["resto"]?$row["resto"]:$row["no"]).'#p'.$row["no"].'">'.$row["no"].'</a></td>
 				<td>'.$row["now"].'</td>
 				<td>'.$row["sub"].'</td>
 				<td>'.$row["name"].'</td>
