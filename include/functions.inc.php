@@ -134,15 +134,26 @@ function usrdel($no,$pwd,$report=false) {
         
         foreach($_POST as $no => $action){
                 if($action=="delete"&&$no){
-                        if(!$result=mysqli_call("SELECT tim,ext,pwd,host FROM ".POSTTABLE." WHERE no=".$no))
+                        if(!$result=mysqli_call("SELECT tim,ext,pwd,host,resto FROM ".POSTTABLE." WHERE no=".$no))
                                 error(lang("Critical SQL problem!"));
                         if(!$post=mysqli_fetch_assoc($result))
-                                error(lang("Error: That post does not exist"));
+                                error(lang("Error: That post does not exist."));
                                 
                         if($report){
                                 if(!mysqli_call("INSERT INTO ".REPORTTABLE." (id,time,ip,post,reason) VALUE ".
                                 "(0,".$time.",'".$host."',".$no.",'".$reason."')"))
                                         error(lang("Critical SQL problem!"));
+                                if(USE_WEBHOOK){
+                                        echo file_get_contents(WEBHOOK_REPORTS_URL,false,stream_context_create([
+                                                "http"=>[
+                                                        "method"=>"POST",
+                                                        "header"=>"content-type:application/x-www-form-urlencoded",
+                                                        "content"=>http_build_query([
+                                                                "content"=>"Post <".HERE.PHP_SELF."?res=".($post["resto"]?$post["resto"]:$no)."#p".$no."> reported for: ```".$reason."``` REPORTERS IP: ".$host,
+                                                        ])
+                                                ]
+                                        ]));
+                                }
                                 echo lang("Report submitted")."<br>";
                         }else{
                                 if($post["pwd"]!=$pwd&&$post["pwd"]!=$pwdc&&$post["host"]!=$host)
@@ -153,8 +164,8 @@ function usrdel($no,$pwd,$report=false) {
                                         unlink(THUMB_DIR.$post["tim"]."s".$post["ext"]);
                                 if(file_exists(THUMB_DIR.$post["tim"]."c".$post["ext"]))
                                         unlink(THUMB_DIR.$post["tim"]."c".$post["ext"]);
-                                if(is_file(RES_DIR.$row["no"].PHP_EXT))unlink(RES_DIR.$row["no"].PHP_EXT);
-                                if(is_file(RES_DIR.$row["no"].".json"))unlink(RES_DIR.$row["no"].".json");
+                                if(is_file(RES_DIR.$post["no"].PHP_EXT))unlink(RES_DIR.$post["no"].PHP_EXT);
+                                if(is_file(RES_DIR.$post["no"].".json"))unlink(RES_DIR.$post["no"].".json");
                                 if($onlyimgdel)mysqli_call("UPDATE ".POSTTABLE." SET filedeleted=1 WHERE no=".$no);
                                 else mysqli_call("DELETE FROM ".POSTTABLE." WHERE no=".$no);
                                 echo lang("Post deleted")."<br>";
