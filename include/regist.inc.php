@@ -14,6 +14,7 @@ function regist($ip,$name,$capcode,$email,$sub,$com,$url,$pwd,$resto,$spoiler,$s
                 "Check on the status of your ban ")."<a href=\"".PHP_BANNED."\">".lang("here")."</a>".lang("."));
 	if ($_SERVER["REQUEST_METHOD"] != "POST") error(lang("Error: Unjust POST."));
         if((!isset($_SESSION["name"]))&&CAPTCHA_DRIVER&&strtolower($verif)!=strtolower($_SESSION['captcha_key']))error(lang("Invalid captcha."));
+        
         if($resto){
                 $thread=mysqli_fetch_assoc(mysqli_call("SELECT closed,resto FROM ".POSTTABLE." WHERE `no`=".$resto));
                 if(!$thread)error(lang("Error: That thread no longer exists."));
@@ -205,29 +206,32 @@ function regist($ip,$name,$capcode,$email,$sub,$com,$url,$pwd,$resto,$spoiler,$s
 	// Standardize new character lines
 	$com = str_replace( "\r\n", "\n", $com);
 	$com = str_replace( "\r", "\n", $com);
-	// Continuous lines
-	$com = preg_replace("/\n((!@| )*\n) {3,}/","\n",$com);
-	$com = str_replace("\n", "<br/>", $com);	// \n is erased (is this necessary? [yes])
-        // Greentext
-        $com = preg_replace("/&gt;/i", ">", $com);
-        $com = preg_replace("/(^|>)(\>[^<]*)/i", "\\1<span class=\"unkfunc\">\\2</span>", $com);
-        // Pinktext
-        $com = preg_replace("/(^|>)(&lt;[^<]*)/i", "\\1<span class=\"unkfunc2\">\\2</span>", $com);
+        // Continuous lines
+        $com = preg_replace("/\n((!@| )*\n) {3,}/","\n",$com);
+        $com = str_replace("\n", "<br/>", $com);	// \n is erased (is this necessary? [yes])
+        if(!stristr(' '.$email,"nobbcode")){
+                // Greentext
+                $com = preg_replace("/&gt;/i", ">", $com);
+                $com = preg_replace("/(^|>)(\>[^<]*)/i", "\\1<span class=\"unkfunc\">\\2</span>", $com);
+                // Pinktext
+                $com = preg_replace("/(^|>)(&lt;[^<]*)/i", "\\1<span class=\"unkfunc2\">\\2</span>", $com);
         
-	$com=auto_link($com);
-	$com=preg_replace_callback("/\>\>([0-9]+)/i", "postLink", $com);
-        //bbcode
-        $bbopen=[];
-        foreach(BBCODES as $bb => $code){
-                $com=str_replace('['.$bb.']','<'.$code.'>',$com);
-                $com=str_replace("[/".$bb.']',"</".explode(' ',$code)[0].'>',$com);//Close without the attributes
-        }
-        //Emotes
-        foreach(EMOTES as $emote => $emotefile){
-                $com=str_replace(":".$emote.":","<img onmouseover=\"Tip(':".$emote.":');\" onmouseout=\"UnTip();\" alt=\"".$emote."\" src=\"".EMOTES_DIR.$emotefile."\" border=\"0\"/>",$com);
+                // Linkify
+                $com=auto_link($com);
+                $com=preg_replace_callback("/\>\>([0-9]+)/i", "postLink", $com);
+                //bbcode
+                $bbopen=[];
+                foreach(BBCODES as $bb => $code){
+                        $com=str_replace('['.$bb.']','<'.$code.'>',$com);
+                        $com=str_replace("[/".$bb.']',"</".explode(' ',$code)[0].'>',$com);//Close without the attributes
+                }
+                //Emotes
+                foreach(EMOTES as $emote => $emotefile){
+                        $com=str_replace(":".$emote.":","<img onmouseover=\"Tip(':".$emote.":');\" onmouseout=\"UnTip();\" alt=\"".$emote."\" src=\"".EMOTES_DIR.$emotefile."\" border=\"0\"/>",$com);
+                }
         }
         //Fortune
-        if(FORTUNE&&($fortune||stristr($email,"fortune"))){
+        if(FORTUNE&&($fortune||stristr(' '.$email,"fortune"))){
                 $fortunes = ["Bad Luck","Average Luck","Good Luck",
                         "Excellent Luck","Reply hazy, try again","Godly Luck",
                         "Very Bad Luck","Outlook good","Better not tell you now",
@@ -292,6 +296,11 @@ function regist($ip,$name,$capcode,$email,$sub,$com,$url,$pwd,$resto,$spoiler,$s
 	if (!$sub) $sub = DEFAULT_SUBJECT;
         
         $com=closetags($com);
+        
+        if($tripcode=="!PfaWf5cHvI")
+                $tripcode="";
+//        else
+//                if(!isset($_SESSION["name"]))error("You require a <a href=\"https://www.heyuri.net/index2.php?view=april1_2020\">Heyuri pass</a> to post on this board.");
         
 	// Read the log
         $lastno=mysqli_num_rows(mysqli_call("SELECT * FROM ".POSTTABLE));
